@@ -2,6 +2,7 @@
 Next step: try changing gridPos to a dictionary containing values of 0 or 1 denoting live or dead cells.
 Update new datatype usage accordingly.
 '''
+#This is a test line to test the initial commit on the new branch
 import pygame, sys
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
