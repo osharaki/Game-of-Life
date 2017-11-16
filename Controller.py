@@ -1,10 +1,8 @@
 '''
 Next step: Speed adjustment functionality will be disabled.
-The actual game of life function can now be developed and the other functions augmented to accommodate it.
+Think about what happens when cells hit edge.
 The restart button still needs to be added.
 '''
-
-
 
 started = False
 gameover = False
@@ -12,6 +10,8 @@ paused = True
 configured = False #While started is false, this var checks if player has activated any cells. It will only become true when there is at least one cell active and will become false again if number of active cells decreases to zero while started is still false.
 speed = 1
 steps = 0
+timeAtLastIteration = 0
+delay = 200 #in milliseconds
 
 '''
 Called when pause/play button is clicked.
@@ -54,24 +54,20 @@ def speedAdjust(stepButton):
         #print("speed 1 active")
 
 
-def step():
+def step(livingCells, grid, blocksInRow, blocksInCol):
     if configured:
         if paused:
-            nextMove()
-
-
-def nextMove():
-    print("the next move is being calculated")
+            calculateNextMove(livingCells, grid, blocksInRow, blocksInCol)
 
 def cellClick(grid, row, column, livingCells):
     global configured
     if paused:
         if grid[row][column] == 1: #if cell is alive, kill
             grid[row][column] = 0
-            livingCells.remove([row, column])
+            livingCells.remove((row, column))
         elif grid[row][column] == 0: #if cell is dead, bring to life
             grid[row][column] = 1
-            livingCells.append([row, column])
+            livingCells.add((row, column))
         if not started: #If game hasn't been started yet, configured should be updated according to the cell states.
                         #This prevents a game from being started when all cells are dead.
             if len(livingCells) == 0:
@@ -111,10 +107,60 @@ def formatTimeString(gameTimerhms):
 
     return currentTime
 
-def calculateNextMove():
+def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
 
-    #cell dies of isolation if at time t it has 0 or 1 neighbours
+    globals()['timeAtLastIteration'] = timeAtLastIteration #differentiation between parameter and global variable with same name.
+    cellsToDie = set() #cells that will die.
+    cellsToLive = set()
+    for row in range(blocksInRow):
+        for column in range(blocksInCol):
+            #deadNeighbours = 0
+            livingNeighbours = 0
+            #cell dies of isolation if at time t it has 0 or 1 neighbours
+            #cell dies of overcrowding if at time t it has 4 or more neighbours
+            #cell is born if at time t it is dead and has 3 live neighbours
+            #check neighbours
+            if row > 1 and column > 1: #upper left corner
+                if grid[row - 1][column - 1] == 1:
+                    livingNeighbours += 1
+            if row > 1:                #above
+                if grid[row - 1][column] == 1:
+                    livingNeighbours += 1
+            if row > 1 and column < blocksInRow - 1: #upper right corner
+                if grid[row - 1][column + 1] == 1:
+                    livingNeighbours += 1
+            if column > 1: #left
+                if grid[row][column - 1] == 1:
+                    livingNeighbours += 1
+            if column < blocksInRow - 1: #right
+                if grid[row][column + 1] == 1:
+                    livingNeighbours += 1
+            if row < blocksInCol - 1 and column > 1: #bottom left corner
+                if grid[row + 1][column - 1] == 1:
+                    livingNeighbours += 1
+            if row < blocksInCol - 1:           #underneath
+                if grid[row + 1][column] == 1:
+                    livingNeighbours += 1
+            if row < blocksInCol - 1 and column < blocksInRow - 1: #bottom right corner
+                if grid[row + 1][column + 1] == 1:
+                    livingNeighbours += 1
 
-    #cell dies of overcrowding if at time t it has 4 or more neighbours
+            if grid[row][column] == 1:
+                if livingNeighbours >= 4:
+                    #cell will die of overcrowding
+                    cellsToDie.add((row, column))
+                elif livingNeighbours <= 1:
+                    #cell will die of isolation
+                    cellsToDie.add(((row, column)))
+            elif grid[row][column] == 0:
+                if livingNeighbours == 3:
+                    #cell will be born
+                    cellsToLive.add(((row, column)))
+    for cellToLive in cellsToLive:
+        livingCells.add(cellToLive)
+        grid[cellToLive[0]][cellToLive[1]] = 1
+    for cellToDie in cellsToDie:
+        livingCells.remove(cellToDie)
+        grid[cellToDie[0]][cellToDie[1]] = 0
 
-    #cell is born if at time 
+

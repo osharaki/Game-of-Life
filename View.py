@@ -1,6 +1,6 @@
 '''
 Next step: Speed adjustment functionality will be disabled.
-The actual game of life function can now be developed and the other functions augmented to accommodate it.
+Think about what happens when cells hit edge.
 The restart button still needs to be added.
 '''
 #This is a test line to test the second commit on the new branch
@@ -74,7 +74,7 @@ ren6 = font.render("Test", 0, RED)
 
 grid = [[0 for x in range(blocksInRow)] for y in range(blocksInCol)]
 gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
-livingCells = [] #Saves the coordinates (row, col) of live cells.
+livingCells = set() #Saves the coordinates (row, col) of live cells.
 #print(gridPos)
 
 #print(gridPos)
@@ -131,7 +131,7 @@ def HandleClicks(clickPos):
             if button.name == "pausePlayButton":
                 controller.pausePlayHandler(buttons)
             elif button.name == "stepButton":
-                controller.step()
+                controller.step(livingCells, grid, blocksInRow, blocksInCol)
             elif button.name == "speedButton":
                 controller.speedAdjust(button)
             return #if a button has been pressed, no need to keep searching
@@ -154,7 +154,7 @@ def drawGrid():
             if grid[row][column] == 0:
                 color = GREEN
             elif grid[row][column] == 1:
-                color = BLACK
+                color = WHITE
             '''
             #Not being used because it creates distortion effect when grid is dragged.
             if row != 0 and column != 0:
@@ -230,6 +230,8 @@ clock = pygame.time.Clock()
 while True:
     if not controller.paused: #Time only progresses if game is not paused.
         gameTimerMS += clock.get_time()
+        if gameTimerMS - controller.timeAtLastIteration >= controller.delay:
+            controller.calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
     gameTimerhms = controller.calculateTime(gameTimerMS)
 
     drawGrid()
