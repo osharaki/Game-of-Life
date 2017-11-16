@@ -1,5 +1,7 @@
 '''
-Next step:
+Next step: Speed adjustment functionality will be disabled.
+The actual game of life function can now be developed and the other functions augmented to accommodate it.
+The restart button still needs to be added.
 '''
 
 
@@ -108,3 +110,11 @@ def formatTimeString(gameTimerhms):
         currentTime += "0" + str(gameTimerhms[2])
 
     return currentTime
+
+def calculateNextMove():
+
+    #cell dies of isolation if at time t it has 0 or 1 neighbours
+
+    #cell dies of overcrowding if at time t it has 4 or more neighbours
+
+    #cell is born if at time 

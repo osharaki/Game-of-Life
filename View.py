@@ -1,5 +1,7 @@
 '''
-Next step:
+Next step: Speed adjustment functionality will be disabled.
+The actual game of life function can now be developed and the other functions augmented to accommodate it.
+The restart button still needs to be added.
 '''
 #This is a test line to test the second commit on the new branch
 import pygame, sys
