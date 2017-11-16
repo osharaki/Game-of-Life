@@ -1,12 +1,23 @@
 '''
-Next step: try changing gridPos to a dictionary containing values of 0 or 1 denoting live or dead cells.
-Update new datatype usage accordingly.
+Next step:
 '''
-#This is a test line to test the initial commit on the new branch
+#This is a test line to test the second commit on the new branch
 import pygame, sys
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
 import Controller as controller
+
+pygame.init()
+pygame.font.init()
+
+gameTimerMS = 0 #Time passed in milliseconds
+gameTimerhms = (0, 0 , 0)
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+TRANSPARENT = (0, 0, 0, 0)
 
 windowHeight = 500
 windowWidth = 500
@@ -32,12 +43,11 @@ blocksInRow = windowWidth//(WIDTH + MARGIN)
 maxZoomIn = 30
 maxZoomOut = 2
 
-print(blocksInCol, ", ", blocksInRow)
+#print(blocksInCol, ", ", blocksInRow)
 
 dragVect = (0, 0)
 
-pygame.init()
-pygame.font.init()
+
 
 surface = pygame.display.set_mode((windowWidth, windowHeight))
 pygame.display.set_caption('Game of Life')
@@ -47,17 +57,22 @@ lastMousePos = pygame.mouse.get_pos()
 mouseStates = None
 mouseDown = False
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-TRANSPARENT = (0, 0, 0, 0)
 
 # screen text
-font = pygame.font.Font(None, 30)
+font = pygame.font.Font(None, 40)
 
-grid = [[1 for x in range(blocksInRow)] for y in range(blocksInCol)]
+'''
+ren1 = font.render("Test", 0, RED)
+ren2 = font.render("Test", 0, RED)
+ren3 = font.render("Test", 0, RED)
+ren4 = font.render("Test", 0, RED)
+ren5 = font.render("Test", 0, RED)
+ren6 = font.render("Test", 0, RED)
+'''
+
+grid = [[0 for x in range(blocksInRow)] for y in range(blocksInCol)]
 gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
+livingCells = [] #Saves the coordinates (row, col) of live cells.
 #print(gridPos)
 
 #print(gridPos)
@@ -107,7 +122,7 @@ buttons = [pausePlayButton, stepButton, speedButton]
 Checks if buttons have been clicked and calls the appropriate controller functions.
 '''
 def HandleClicks(clickPos):
-    #check if pause play buttons have been clicked.
+
     for button in buttons:
         if clickPos[0] >= button.pos[0] and clickPos[0] <= button.pos[0] + button.width\
             and clickPos[1] >= button.pos[1] and clickPos[1] <= button.pos[1] + button.height:
@@ -117,6 +132,12 @@ def HandleClicks(clickPos):
                 controller.step()
             elif button.name == "speedButton":
                 controller.speedAdjust(button)
+            return #if a button has been pressed, no need to keep searching
+    for row in range(blocksInRow):
+        for column in range(blocksInCol):
+            if clickPos[0] >= gridPos[row][column][0] and clickPos[0] <= gridPos[row][column][0] + WIDTH\
+                and clickPos[1] >= gridPos[row][column][1] and clickPos[1] <= gridPos[row][column][1] + HEIGHT:
+                controller.cellClick(grid, row, column, livingCells)
 
 def drawGrid():
 
@@ -128,8 +149,10 @@ def drawGrid():
     for row in range(blocksInRow):
         for column in range(blocksInCol):
             color = BLACK
-            if grid[row][column] == 1:
+            if grid[row][column] == 0:
                 color = GREEN
+            elif grid[row][column] == 1:
+                color = BLACK
             '''
             #Not being used because it creates distortion effect when grid is dragged.
             if row != 0 and column != 0:
@@ -180,6 +203,19 @@ def drawGrid():
     #Prevents grid from sliding while mouse is pressed and cursor not moving.
     if lastMousePos == pygame.mouse.get_pos(): #This is probably true every frame due to "lastMousePos = event.pos"
         dragVect = (0, 0)
+
+    currentTime = controller.formatTimeString(gameTimerhms)
+    ren = font.render(currentTime, 0, RED, BLACK)
+    surface.blit(ren, (0, 0))
+    '''
+    surface.blit(ren1, (10, 40), special_flags = 2)
+    surface.blit(ren2, (10, 70), special_flags = 3)
+    surface.blit(ren3, (10, 100), special_flags = 4)
+    surface.blit(ren4, (10, 130), special_flags = 5)
+    surface.blit(ren5, (10, 160), special_flags = 6)
+    surface.blit(ren6, (10, 190), special_flags = 7)
+    '''
+    #surface.blit(ren, (10, 10), special_flags = 1)
     #print(gridPos)
 
 
@@ -190,6 +226,10 @@ def quitGame():
 clock = pygame.time.Clock()
 
 while True:
+    if not controller.paused: #Time only progresses if game is not paused.
+        gameTimerMS += clock.get_time()
+    gameTimerhms = controller.calculateTime(gameTimerMS)
+
     drawGrid()
     drawButtons(buttons)
     #drawButtons()

@@ -1,8 +1,5 @@
-#import View
 '''
-
-Next step: implement cell clicks. This will allow for configure to be activated and the pause/play button to have
-functionality.
+Next step:
 '''
 
 
@@ -19,8 +16,10 @@ Called when pause/play button is clicked.
 '''
 def pausePlayHandler(buttons):
     global paused
+    global started
     if configured: #if player has activated some cells the game may be started
         if paused: #game will now be running
+            started = True
             paused = False
             for button in buttons: #find step button
                 if button.name == "stepButton":
@@ -54,7 +53,6 @@ def speedAdjust(stepButton):
 
 
 def step():
-
     if configured:
         if paused:
             nextMove()
@@ -63,6 +61,50 @@ def step():
 def nextMove():
     print("the next move is being calculated")
 
-#def cellClick():
-#    if paused:
+def cellClick(grid, row, column, livingCells):
+    global configured
+    if paused:
+        if grid[row][column] == 1: #if cell is alive, kill
+            grid[row][column] = 0
+            livingCells.remove([row, column])
+        elif grid[row][column] == 0: #if cell is dead, bring to life
+            grid[row][column] = 1
+            livingCells.append([row, column])
+        if not started: #If game hasn't been started yet, configured should be updated according to the cell states.
+                        #This prevents a game from being started when all cells are dead.
+            if len(livingCells) == 0:
+                configured = False
+            else:
+                configured = True
+        #print(livingCells)
+        #print(configured)
 
+'''
+Turns milliseconds to hours:minutes:seconds.
+'''
+def calculateTime(milliseconds):
+    seconds = int((milliseconds / 1000) % 60)
+    minutes = int(((milliseconds / (1000*60)) % 60))
+    hours = int(((milliseconds / (1000*60*60)) % 24))
+
+    return (hours, minutes, seconds)
+
+'''
+Adds a leading zero to single digit time components.
+'''
+def formatTimeString(gameTimerhms):
+    currentTime = ""
+    if (gameTimerhms[0] // 10) != 0:
+        currentTime += str(gameTimerhms[0]) + ":"
+    else:
+        currentTime += "0" + str(gameTimerhms[0]) + ":"
+    if (gameTimerhms[1] // 10) != 0:
+        currentTime += str(gameTimerhms[1]) + ":"
+    else:
+        currentTime += "0" + str(gameTimerhms[1]) + ":"
+    if (gameTimerhms[2] // 10) != 0:
+        currentTime += str(gameTimerhms[2])
+    else:
+        currentTime += "0" + str(gameTimerhms[2])
+
+    return currentTime
