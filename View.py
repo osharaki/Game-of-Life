@@ -35,13 +35,16 @@ origHeight = HEIGHT
 origMargin = MARGIN
 
 # Adjusts the screen size to make all grid blocks fit perfectly taking in regard margin size
+'''
 while windowHeight % (HEIGHT + MARGIN) != 0:
     windowHeight += 1
 blocksInCol = windowHeight//(HEIGHT + MARGIN)
 while windowWidth % (WIDTH + MARGIN) != 0:
     windowWidth += 1
 blocksInRow = windowWidth//(WIDTH + MARGIN)
-
+'''
+blocksInRow = 1000
+blocksInCol = 1000
 maxZoomIn = 30
 maxZoomOut = 2
 
@@ -131,7 +134,7 @@ def HandleClicks(clickPos):
             if button.name == "pausePlayButton":
                 controller.pausePlayHandler(buttons)
             elif button.name == "stepButton":
-                controller.step(livingCells, grid, blocksInRow, blocksInCol)
+                controller.step(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
             elif button.name == "speedButton":
                 controller.speedAdjust(button)
             return #if a button has been pressed, no need to keep searching
@@ -195,7 +198,11 @@ def drawGrid():
             else: #If drag did happen, then no need to simulate zoom, rather focus on simulating drag
                 gridPos[row][column] = [(gridPos[row][column][0] + dragVect[0]),
                                         (gridPos[row][column][1] + dragVect[1])] #saves position of each cell in grid
-
+            #Draws only cells that are actually in the screen
+            '''
+            if (gridPos[row][column][0] + WIDTH) >= 0 and gridPos[row][column][0] <= windowWidth\
+                and (gridPos[row][column][1] + HEIGHT) >= 0 and gridPos[row][column][1] <= windowHeight:
+            '''
             pygame.draw.rect(surface,
                              color,
                              [gridPos[row][column][0],
