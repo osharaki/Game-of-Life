@@ -147,12 +147,28 @@ def HandleClicks(clickPos):
 def drawGrid():
 
     global dragVect
-
+    startRow = 0
+    endRow = (windowHeight // (HEIGHT))
+    startCol = 0
+    endCol = (windowWidth // (WIDTH))
+    leaveNestedLoop = False
+    #get first cell to start from
+    for column in range(blocksInCol):
+        if (gridPos[0][column][0] - MARGIN) <= 0 and gridPos[0][column][0] > ((WIDTH * 2) * -1): #found our column
+            for row in range(blocksInRow):
+                if (gridPos[row][column][1] - MARGIN) <= 0 and gridPos[row][column][1] > ((HEIGHT * 2) * -1): #found our row
+                    startRow = row
+                    startCol = column
+                    leaveNestedLoop = True
+                    break
+        if leaveNestedLoop:
+            break
+    #print(startRow, startCol)
     surface.fill(BLACK)
     #oldDragVect = dragVect
     # Draw the grid
-    for row in range(blocksInRow):
-        for column in range(blocksInCol):
+    for row in range(startRow, endRow):
+        for column in range(startCol, endCol):
             color = BLACK
             if grid[row][column] == 0:
                 color = GREEN
