@@ -1,6 +1,6 @@
 '''
 Next step: Speed adjustment functionality will be disabled.
-Think about what happens when cells hit edge.
+Variable window size depending on target machine.
 The restart button still needs to be added.
 '''
 #This is a test line to test the second commit on the new branch
@@ -21,8 +21,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 TRANSPARENT = (0, 0, 0, 0)
 
-windowHeight = 500
-windowWidth = 500
+windowHeight = 1000
+windowWidth = 1000
 
 WIDTH = 10 # square width
 HEIGHT = 10 # square height
@@ -33,6 +33,7 @@ oldMargin = MARGIN
 origWidth = WIDTH
 origHeight = HEIGHT
 origMargin = MARGIN
+ommitedLines = 5 #Number of leading rows and columns that will not be rendered.
 
 # Adjusts the screen size to make all grid blocks fit perfectly taking in regard margin size
 while windowHeight % (HEIGHT + MARGIN) != 0:
@@ -41,6 +42,9 @@ blocksInCol = windowHeight//(HEIGHT + MARGIN)
 while windowWidth % (WIDTH + MARGIN) != 0:
     windowWidth += 1
 blocksInRow = windowWidth//(WIDTH + MARGIN)
+
+blocksInRow += ommitedLines * 2
+blocksInCol += ommitedLines * 2
 
 maxZoomIn = 30
 maxZoomOut = 2
@@ -73,7 +77,8 @@ ren6 = font.render("Test", 0, RED)
 '''
 
 grid = [[0 for x in range(blocksInRow)] for y in range(blocksInCol)]
-gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
+#gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
+gridPos = [[[(MARGIN + WIDTH) * (x + ommitedLines * -1) + MARGIN, (MARGIN + HEIGHT) * (y + ommitedLines * -1) + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
 livingCells = set() #Saves the coordinates (row, col) of live cells.
 #print(gridPos)
 
@@ -131,7 +136,7 @@ def HandleClicks(clickPos):
             if button.name == "pausePlayButton":
                 controller.pausePlayHandler(buttons)
             elif button.name == "stepButton":
-                controller.step(livingCells, grid, blocksInRow, blocksInCol)
+                controller.step(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
             elif button.name == "speedButton":
                 controller.speedAdjust(button)
             return #if a button has been pressed, no need to keep searching
@@ -150,6 +155,7 @@ def drawGrid():
     # Draw the grid
     for row in range(blocksInRow):
         for column in range(blocksInCol):
+
             color = BLACK
             if grid[row][column] == 0:
                 color = GREEN
@@ -196,12 +202,13 @@ def drawGrid():
                 gridPos[row][column] = [(gridPos[row][column][0] + dragVect[0]),
                                         (gridPos[row][column][1] + dragVect[1])] #saves position of each cell in grid
 
-            pygame.draw.rect(surface,
-                             color,
-                             [gridPos[row][column][0],
-                             gridPos[row][column][1],
-                             WIDTH,
-                             HEIGHT])
+            if row > (ommitedLines - 1) and row < (blocksInCol - ommitedLines) and column > (ommitedLines - 1) and column < (blocksInRow - ommitedLines):
+                pygame.draw.rect(surface,
+                                 color,
+                                 [gridPos[row][column][0],
+                                 gridPos[row][column][1],
+                                 WIDTH,
+                                 HEIGHT])
     #Prevents grid from sliding while mouse is pressed and cursor not moving.
     if lastMousePos == pygame.mouse.get_pos(): #This is probably true every frame due to "lastMousePos = event.pos"
         dragVect = (0, 0)

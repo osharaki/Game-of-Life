@@ -1,6 +1,6 @@
 '''
 Next step: Speed adjustment functionality will be disabled.
-Think about what happens when cells hit edge.
+Variable window size depending on target machine.
 The restart button still needs to be added.
 '''
 
@@ -54,10 +54,10 @@ def speedAdjust(stepButton):
         #print("speed 1 active")
 
 
-def step(livingCells, grid, blocksInRow, blocksInCol):
+def step(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
     if configured:
         if paused:
-            calculateNextMove(livingCells, grid, blocksInRow, blocksInCol)
+            calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration)
 
 def cellClick(grid, row, column, livingCells):
     global configured
