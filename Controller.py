@@ -1,7 +1,8 @@
 '''
-Next step: Speed adjustment functionality will be disabled.
+Next step:
+The optimization method where next moves were to be calculated in the draw function did not provide the
+performance improvements expected. Another approach will have to be utilized if a larger grid is to be used.
 Variable window size depending on target machine.
-The restart button still needs to be added.
 '''
 
 started = False
@@ -13,7 +14,9 @@ steps = 0
 timeAtLastIteration = 0
 origDelay = 200
 delay = origDelay #in milliseconds
-
+calculateNext = False
+cellsToDie = set() #cells that will die.
+cellsToLive = set()#cells that will live.
 
 def restart(gameTimerMS, livingCells, grid, buttons):
     global started, paused, configured, steps, timeAtLastIteration
@@ -78,10 +81,11 @@ def speedAdjust(stepButton):
     #print(delay)
 
 def step(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
+    global calculateNext
     if configured:
         if paused:
-            calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration)
-
+            #calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration)
+            calculateNext = True
 def cellClick(grid, row, column, livingCells):
     global configured
     if paused:
@@ -186,4 +190,61 @@ def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIte
         livingCells.remove(cellToDie)
         grid[cellToDie[0]][cellToDie[1]] = 0
 
+def calculateNextCellMove(livingCells, grid, blocksInRow, blocksInCol, row, column):
+
+    livingNeighbours = 0
+    #cell dies of isolation if at time t it has 0 or 1 neighbours
+    #cell dies of overcrowding if at time t it has 4 or more neighbours
+    #cell is born if at time t it is dead and has 3 live neighbours
+    #check neighbours
+    if row > 1 and column > 1: #upper left corner
+        if grid[row - 1][column - 1] == 1:
+            livingNeighbours += 1
+    if row > 1:                #above
+        if grid[row - 1][column] == 1:
+            livingNeighbours += 1
+    if row > 1 and column < blocksInRow - 1: #upper right corner
+        if grid[row - 1][column + 1] == 1:
+            livingNeighbours += 1
+    if column > 1: #left
+        if grid[row][column - 1] == 1:
+            livingNeighbours += 1
+    if column < blocksInRow - 1: #right
+        if grid[row][column + 1] == 1:
+            livingNeighbours += 1
+    if row < blocksInCol - 1 and column > 1: #bottom left corner
+        if grid[row + 1][column - 1] == 1:
+            livingNeighbours += 1
+    if row < blocksInCol - 1:           #underneath
+        if grid[row + 1][column] == 1:
+            livingNeighbours += 1
+    if row < blocksInCol - 1 and column < blocksInRow - 1: #bottom right corner
+        if grid[row + 1][column + 1] == 1:
+            livingNeighbours += 1
+
+    if grid[row][column] == 1:
+        if livingNeighbours >= 4:
+            #cell will die of overcrowding
+            cellsToDie.add((row, column))
+        elif livingNeighbours <= 1:
+            #cell will die of isolation
+            cellsToDie.add(((row, column)))
+    elif grid[row][column] == 0:
+        if livingNeighbours == 3:
+            #cell will be born
+            cellsToLive.add(((row, column)))
+
+def calculateNextMoveFinal(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
+    global cellsToLive, cellsToDie, calculateNext
+    globals()['timeAtLastIteration'] = timeAtLastIteration #differentiation between parameter and global variable with same name.
+
+    for cellToLive in cellsToLive:
+        livingCells.add(cellToLive)
+        grid[cellToLive[0]][cellToLive[1]] = 1
+    for cellToDie in cellsToDie:
+        livingCells.remove(cellToDie)
+        grid[cellToDie[0]][cellToDie[1]] = 0
+    cellsToLive = set()
+    cellsToDie = set()
+    calculateNext = False #added explicitly to disable next move calculation when step was used to calculate previous move
 

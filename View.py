@@ -1,9 +1,10 @@
 '''
-Next step: Speed adjustment functionality will be disabled.
+Next step:
+The optimization method where next moves were to be calculated in the draw function did not provide the
+performance improvements expected. Another approach will have to be utilized if a larger grid is to be used.
 Variable window size depending on target machine.
-The restart button still needs to be added.
 '''
-#This is a test line to test the second commit on the new branch
+
 import pygame, sys
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
@@ -21,8 +22,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 TRANSPARENT = (0, 0, 0, 0)
 
-windowHeight = 500
-windowWidth = 500
+windowHeight = 1000
+windowWidth = 1000
 
 WIDTH = 10 # square width
 HEIGHT = 10 # square height
@@ -33,7 +34,7 @@ oldMargin = MARGIN
 origWidth = WIDTH
 origHeight = HEIGHT
 origMargin = MARGIN
-ommitedLines = 5 #Number of leading rows and columns that will not be rendered.
+ommitedLines = 10 #Number of leading rows and columns that will not be rendered.
 
 # Adjusts the screen size to make all grid blocks fit perfectly taking in regard margin size
 while windowHeight % (HEIGHT + MARGIN) != 0:
@@ -163,11 +164,11 @@ def HandleClicks(clickPos):
                 if clickPos[0] >= gridPos[row][column][0] and clickPos[0] <= gridPos[row][column][0] + WIDTH:
                     #found correct column
                     controller.cellClick(grid, row, column, livingCells)
-def drawGrid():
+def drawGrid(calculateNextMove, timeAtLastIteration):
 
     global dragVect
 
-    surface.fill(BLACK)
+    surface.fill(WHITE)
     #oldDragVect = dragVect
     # Draw the grid
     for row in range(blocksInRow):
@@ -201,6 +202,10 @@ def drawGrid():
             cannot drag and zoom at the same time; a physically possible yet unlikely scenario due to the awkwardness
             of the action.
             '''
+
+            #No drag or zoom will be simulated due to collisions with grid traversal optimization measures arising from
+            #the wish to calculate next moves in the draw function.
+            '''
             #If no drag happened then no need to worry about simulating drag, rather focus on simulating potential zoom
             if dragVect == (0, 0):
                 if row != 0 and column != 0:
@@ -218,6 +223,7 @@ def drawGrid():
             else: #If drag did happen, then no need to simulate zoom, rather focus on simulating drag
                 gridPos[row][column] = [(gridPos[row][column][0] + dragVect[0]),
                                         (gridPos[row][column][1] + dragVect[1])] #saves position of each cell in grid
+            '''
 
             if row > (ommitedLines - 1) and row < (blocksInCol - ommitedLines) and column > (ommitedLines - 1) and column < (blocksInRow - ommitedLines):
                 pygame.draw.rect(surface,
@@ -226,6 +232,12 @@ def drawGrid():
                                  gridPos[row][column][1],
                                  WIDTH,
                                  HEIGHT])
+
+            #Calculate next move for cell
+            if(calculateNextMove):
+                controller.calculateNextCellMove(livingCells, grid, blocksInRow, blocksInCol, row, column)
+    if(calculateNextMove):
+        controller.calculateNextMoveFinal(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration)
     #Prevents grid from sliding while mouse is pressed and cursor not moving.
     if lastMousePos == pygame.mouse.get_pos(): #This is probably true every frame due to "lastMousePos = event.pos"
         dragVect = (0, 0)
@@ -254,16 +266,21 @@ clock = pygame.time.Clock()
 while True:
     if not controller.paused: #Time only progresses if game is not paused.
         gameTimerMS += clock.get_time()
-        #print(controller.delay)
         if gameTimerMS - controller.timeAtLastIteration >= controller.delay:
-            controller.calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
+            controller.calculateNext = True
+            #controller.calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
+        else:
+            controller.calculateNext = False
     gameTimerhms = controller.calculateTime(gameTimerMS)
 
-    drawGrid()
+    drawGrid(controller.calculateNext, gameTimerMS)
     drawButtons(buttons)
     #drawButtons()
     # Handle user and system events
     for event in GAME_EVENTS.get():
+        #drags are disabled because next moves are being calculated in the draw function and this causes collisions
+        #with drags and zooms.
+        '''
         #Drags grid when right mouse button is pressed and held.
         if pygame.mouse.get_pressed()[2]: #This function is unreliable. Does not always return true even though mouse is still pressed.
                                           #When cursor is no longer moving, but mouse is still pressed, event.pos is ahead of lastMousePos.
@@ -280,7 +297,11 @@ while True:
         else:
             lastMousePos = pygame.mouse.get_pos() #Constanly updates lastMousePos variable to prevent snapping.
             #print("lastMousePos = pygame.mouse.get_pos()")
+        '''
         if event.type == pygame.MOUSEBUTTONDOWN:
+            #Zooms are disabled because next moves are being calculated in the draw function and this causes collisions
+            #with drags and zooms.
+            '''
             if event.button == 4: #scroll up
                 #print("scrolled up")
                 #print(HEIGHT)
@@ -293,6 +314,7 @@ while True:
                     #MARGIN = WIDTH * origMargin / origWidth #maintaining aspect ratio
                     #print(MARGIN)
             elif event.button == 5: #scroll down
+
                 #print("scrolled down")
                 #print(HEIGHT)
                 if WIDTH > maxZoomOut and HEIGHT > maxZoomOut: #maximum zoom out
@@ -303,7 +325,8 @@ while True:
                     HEIGHT -= 1
                     #MARGIN = WIDTH * origMargin / origWidth #maintaining aspect ratio
                     #print(MARGIN)
-            elif event.button == 1:
+            '''
+            if event.button == 1:
                 clickPos = pygame.mouse.get_pos()
                 HandleClicks(clickPos)
         if event.type == pygame.KEYDOWN:
