@@ -1,7 +1,8 @@
 '''
 Next step:
 The optimization method where next moves were to be calculated in the draw function did not provide the
-performance improvements expected. Another approach will have to be utilized if a larger grid is to be used.
+performance improvements expected. Game lags when larger window, e.g. 1000x1000, is used and computer is set to low
+performance. Another approach will have to be utilized if a larger grid is to be used.
 Variable window size depending on target machine.
 '''
 
