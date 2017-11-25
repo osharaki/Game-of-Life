@@ -11,7 +11,27 @@ configured = False #While started is false, this var checks if player has activa
 speed = 1
 steps = 0
 timeAtLastIteration = 0
-delay = 200 #in milliseconds
+origDelay = 200
+delay = origDelay #in milliseconds
+
+
+def restart(gameTimerMS, livingCells, grid, buttons):
+    global started, paused, configured, steps, timeAtLastIteration
+    started = False
+    paused = True
+    configured = False
+    steps = 0
+    timeAtLastIteration = 0
+
+    #gameTimerMS = 0 #Doesnt work because floats are immutable. Whatever the hell that means...
+
+    for livingCell in livingCells:
+        grid[livingCell[0]][livingCell[1]] = 0
+    livingCells = set()
+    for button in buttons:
+        button.setActiveImage(button.initialImage)
+
+    return 0
 
 '''
 Called when pause/play button is clicked.
@@ -39,20 +59,23 @@ def pausePlayHandler(buttons):
 
 
 def speedAdjust(stepButton):
-    global speed
+    global speed, delay
     if speed == 1:
         speed = 2
+        delay = origDelay - 100
         stepButton.setActiveImage("speed2")
         #print("speed 2 active")
     elif speed == 2:
         speed = 3
+        delay = origDelay - 200
         stepButton.setActiveImage("speed3")
         #print("speed 3 active")
     elif speed == 3:
         speed = 1
+        delay = origDelay
         stepButton.setActiveImage("speed1")
         #print("speed 1 active")
-
+    #print(delay)
 
 def step(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
     if configured:

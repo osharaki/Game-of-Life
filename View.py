@@ -21,8 +21,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 TRANSPARENT = (0, 0, 0, 0)
 
-windowHeight = 1000
-windowWidth = 1000
+windowHeight = 500
+windowWidth = 500
 
 WIDTH = 10 # square width
 HEIGHT = 10 # square height
@@ -91,6 +91,7 @@ class Button():
         self.name = name #button alias
         self.order = order #where on the screen the button is to appear. 1 is rightmost image
         self.imageDict = {} #maps image alias to image object to ease later referencing
+        self.initialImage = initialImage
 
         for imageName in imagePaths:
             self.imageDict[imageName] = pygame.image.load(imagePaths[imageName])
@@ -120,16 +121,17 @@ def drawButtons(buttonList):
             if button.state:
                 surface.blit(button.image, button.pos)
 
-pausePlayButton = Button("pausePlayButton", 1, True, {"pause" : "assets/images/pause25x28.png", "play" : "assets/images/play25x28.png"}, "play")
+pausePlayButton = Button("pausePlayButton", 1, True, {"pause" : "assets/images/pause-button.png", "play" : "assets/images/play-button.png"}, "play")
 stepButton = Button("stepButton", 2, True, {"step" : "assets/images/step25x25.png", "step_disabled" : "assets/images/step25x25_disabled.png"}, "step_disabled")
 speedButton = Button("speedButton", 3, True, {"speed1" : "assets/images/speed1.png", "speed2" : "assets/images/speed2.png", "speed3" : "assets/images/speed3.png"}, "speed1")
-buttons = [pausePlayButton, stepButton, speedButton]
+restartButton = Button("restartButton", 4, True, {"restart" : "assets/images/restart-button.png"}, "restart")
+buttons = [pausePlayButton, stepButton, speedButton, restartButton]
 
 '''
 Checks if buttons have been clicked and calls the appropriate controller functions.
 '''
 def HandleClicks(clickPos):
-
+    global gameTimerMS
     for button in buttons:
         if clickPos[0] >= button.pos[0] and clickPos[0] <= button.pos[0] + button.width\
             and clickPos[1] >= button.pos[1] and clickPos[1] <= button.pos[1] + button.height:
@@ -139,13 +141,28 @@ def HandleClicks(clickPos):
                 controller.step(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
             elif button.name == "speedButton":
                 controller.speedAdjust(button)
+            elif button.name == "restartButton":
+                gameTimerMS = controller.restart(gameTimerMS, livingCells, grid, buttons)
             return #if a button has been pressed, no need to keep searching
+    '''
     for row in range(blocksInRow):
         for column in range(blocksInCol):
             if clickPos[0] >= gridPos[row][column][0] and clickPos[0] <= gridPos[row][column][0] + WIDTH\
                 and clickPos[1] >= gridPos[row][column][1] and clickPos[1] <= gridPos[row][column][1] + HEIGHT:
                 controller.cellClick(grid, row, column, livingCells)
-
+    '''
+    '''
+    Instead of checking every single cell in grid, find the clicked cell by first finding the correct row then
+    finding the correct column within that row.
+    '''
+    for row in range(blocksInCol):
+        #look for correct row
+        if clickPos[1] >= gridPos[row][0][1] and clickPos[1] <= gridPos[row][0][1] + HEIGHT:
+            #found correct row, now look for column
+            for column in range(blocksInRow):
+                if clickPos[0] >= gridPos[row][column][0] and clickPos[0] <= gridPos[row][column][0] + WIDTH:
+                    #found correct column
+                    controller.cellClick(grid, row, column, livingCells)
 def drawGrid():
 
     global dragVect
@@ -237,6 +254,7 @@ clock = pygame.time.Clock()
 while True:
     if not controller.paused: #Time only progresses if game is not paused.
         gameTimerMS += clock.get_time()
+        #print(controller.delay)
         if gameTimerMS - controller.timeAtLastIteration >= controller.delay:
             controller.calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, gameTimerMS)
     gameTimerhms = controller.calculateTime(gameTimerMS)
