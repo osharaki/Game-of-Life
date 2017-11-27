@@ -1,9 +1,9 @@
 '''
-Next step: Speed adjustment functionality will be disabled.
+Next step:
 Variable window size depending on target machine.
-The restart button still needs to be added.
+Optimize grid traversal. Game lags when a larger grid, e.g. 1000x1000 is used and computer is set to low performance.
 '''
-#This is a test line to test the second commit on the new branch
+
 import pygame, sys
 import pygame.locals as GAME_GLOBALS
 import pygame.event as GAME_EVENTS
@@ -21,8 +21,8 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 TRANSPARENT = (0, 0, 0, 0)
 
-windowHeight = 500
-windowWidth = 500
+windowHeight = 1000
+windowWidth = 1000
 
 WIDTH = 10 # square width
 HEIGHT = 10 # square height
