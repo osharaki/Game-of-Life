@@ -1,7 +1,8 @@
 '''
 Next step:
 Variable window size depending on target machine.
-Optimize grid traversal. Game lags when a larger grid, e.g. 1000x1000 is used and computer is set to low performance.
+Add functionality that counts cells, to better estimate distances when creating structures.
+One suggestion would be "block shadows" that follow the cursor.
 '''
 
 started = False
@@ -27,7 +28,7 @@ def restart(gameTimerMS, livingCells, grid, buttons):
 
     for livingCell in livingCells:
         grid[livingCell[0]][livingCell[1]] = 0
-    livingCells = set()
+    livingCells.clear()
     for button in buttons:
         button.setActiveImage(button.initialImage)
 
@@ -130,55 +131,86 @@ def formatTimeString(gameTimerhms):
 
     return currentTime
 
+'''
+Next moves are only calculated for living cells and cells surrounding them.
+'''
 def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
 
     globals()['timeAtLastIteration'] = timeAtLastIteration #differentiation between parameter and global variable with same name.
     cellsToDie = set() #cells that will die.
     cellsToLive = set()
-    for row in range(blocksInRow):
-        for column in range(blocksInCol):
-            #deadNeighbours = 0
-            livingNeighbours = 0
-            #cell dies of isolation if at time t it has 0 or 1 neighbours
-            #cell dies of overcrowding if at time t it has 4 or more neighbours
-            #cell is born if at time t it is dead and has 3 live neighbours
-            #check neighbours
-            if row > 1 and column > 1: #upper left corner
-                if grid[row - 1][column - 1] == 1:
-                    livingNeighbours += 1
-            if row > 1:                #above
-                if grid[row - 1][column] == 1:
-                    livingNeighbours += 1
-            if row > 1 and column < blocksInRow - 1: #upper right corner
-                if grid[row - 1][column + 1] == 1:
-                    livingNeighbours += 1
-            if column > 1: #left
-                if grid[row][column - 1] == 1:
-                    livingNeighbours += 1
-            if column < blocksInRow - 1: #right
-                if grid[row][column + 1] == 1:
-                    livingNeighbours += 1
-            if row < blocksInCol - 1 and column > 1: #bottom left corner
-                if grid[row + 1][column - 1] == 1:
-                    livingNeighbours += 1
-            if row < blocksInCol - 1:           #underneath
-                if grid[row + 1][column] == 1:
-                    livingNeighbours += 1
-            if row < blocksInCol - 1 and column < blocksInRow - 1: #bottom right corner
-                if grid[row + 1][column + 1] == 1:
-                    livingNeighbours += 1
+    cellsToCheck = set() #includes living cells and all cells in their vicinity
+    for livingCell in livingCells:
+        ulc = (livingCell[0], livingCell[1] - 1)
+        urc = (livingCell[0] - 1, livingCell[1] + 1)
+        blc = (livingCell[0] + 1, livingCell[1] - 1)
+        brc = (livingCell[0] + 1, livingCell[1] + 1)
+        above = (livingCell[0] - 1, livingCell[1])
+        left = (livingCell[0], livingCell[1] - 1)
+        right = (livingCell[0], livingCell[1] + 1)
+        underneath = (livingCell[0] + 1, livingCell[1])
 
-            if grid[row][column] == 1:
-                if livingNeighbours >= 4:
-                    #cell will die of overcrowding
-                    cellsToDie.add((row, column))
-                elif livingNeighbours <= 1:
-                    #cell will die of isolation
-                    cellsToDie.add(((row, column)))
-            elif grid[row][column] == 0:
-                if livingNeighbours == 3:
-                    #cell will be born
-                    cellsToLive.add(((row, column)))
+        cellsToCheck.add(livingCell)
+        if livingCell[0] > 1 and livingCell[1] > 1: #upper left corner
+            cellsToCheck.add(ulc)
+        if livingCell[0] > 1:                #above
+            cellsToCheck.add(above)
+        if livingCell[0] > 1 and livingCell[1] < blocksInRow - 1: #upper right corner
+            cellsToCheck.add(urc)
+        if livingCell[1] > 1: #left
+            cellsToCheck.add(left)
+        if livingCell[1] < blocksInRow - 1: #right
+            cellsToCheck.add(right)
+        if livingCell[0] < blocksInCol - 1 and livingCell[1] > 1: #bottom left corner
+            cellsToCheck.add(blc)
+        if livingCell[0] < blocksInCol - 1:           #underneath
+            cellsToCheck.add(underneath)
+        if livingCell[0] < blocksInCol - 1 and livingCell[1] < blocksInRow - 1: #bottom right corner
+            cellsToCheck.add(brc)
+
+    for cellToCheck in cellsToCheck:
+        #deadNeighbours = 0
+        livingNeighbours = 0
+        #cell dies of isolation if at time t it has 0 or 1 neighbours
+        #cell dies of overcrowding if at time t it has 4 or more neighbours
+        #cell is born if at time t it is dead and has 3 live neighbours
+        #check neighbours
+        if cellToCheck[0] > 1 and cellToCheck[1] > 1: #upper left corner
+            if grid[cellToCheck[0] - 1][cellToCheck[1] - 1] == 1:
+                livingNeighbours += 1
+        if cellToCheck[0] > 1:                #above
+            if grid[cellToCheck[0] - 1][cellToCheck[1]] == 1:
+                livingNeighbours += 1
+        if cellToCheck[0] > 1 and cellToCheck[1] < blocksInRow - 1: #upper right corner
+            if grid[cellToCheck[0] - 1][cellToCheck[1] + 1] == 1:
+                livingNeighbours += 1
+        if cellToCheck[1] > 1: #left
+            if grid[cellToCheck[0]][cellToCheck[1] - 1] == 1:
+                livingNeighbours += 1
+        if cellToCheck[1] < blocksInRow - 1: #right
+            if grid[cellToCheck[0]][cellToCheck[1] + 1] == 1:
+                livingNeighbours += 1
+        if cellToCheck[0] < blocksInCol - 1 and cellToCheck[1] > 1: #bottom left corner
+            if grid[cellToCheck[0] + 1][cellToCheck[1] - 1] == 1:
+                livingNeighbours += 1
+        if cellToCheck[0] < blocksInCol - 1:           #underneath
+            if grid[cellToCheck[0] + 1][cellToCheck[1]] == 1:
+                livingNeighbours += 1
+        if cellToCheck[0] < blocksInCol - 1 and cellToCheck[1] < blocksInRow - 1: #bottom right corner
+            if grid[cellToCheck[0] + 1][cellToCheck[1] + 1] == 1:
+                livingNeighbours += 1
+
+        if grid[cellToCheck[0]][cellToCheck[1]] == 1:
+            if livingNeighbours >= 4:
+                #cell will die of overcrowding
+                cellsToDie.add((cellToCheck[0], cellToCheck[1]))
+            elif livingNeighbours <= 1:
+                #cell will die of isolation
+                cellsToDie.add(((cellToCheck[0], cellToCheck[1])))
+        elif grid[cellToCheck[0]][cellToCheck[1]] == 0:
+            if livingNeighbours == 3:
+                #cell will be born
+                cellsToLive.add(((cellToCheck[0], cellToCheck[1])))
     for cellToLive in cellsToLive:
         livingCells.add(cellToLive)
         grid[cellToLive[0]][cellToLive[1]] = 1
