@@ -4,6 +4,7 @@ Variable window size depending on target machine.
 Add functionality that counts cells, to better estimate distances when creating structures.
 One suggestion would be "block shadows" that follow the cursor.
 '''
+import os
 
 import pygame, sys
 import pygame.locals as GAME_GLOBALS
@@ -66,7 +67,8 @@ mouseDown = False
 
 
 # screen text
-font = pygame.font.Font(None, 40)
+fontPath = os.path.join("assets", "fonts", "LemonMilk.otf") #makes path platform independent
+font = pygame.font.Font(fontPath, 40)
 
 grid = [[0 for x in range(blocksInRow)] for y in range(blocksInCol)]
 #gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
@@ -113,10 +115,10 @@ def drawButtons(buttonList):
             if button.state:
                 surface.blit(button.image, button.pos)
 
-pausePlayButton = Button("pausePlayButton", 1, True, {"pause" : "assets/images/pause-button.png", "play" : "assets/images/play-button.png"}, "play")
-stepButton = Button("stepButton", 2, True, {"step" : "assets/images/step25x25.png", "step_disabled" : "assets/images/step25x25_disabled.png"}, "step_disabled")
-speedButton = Button("speedButton", 3, True, {"speed1" : "assets/images/speed1.png", "speed2" : "assets/images/speed2.png", "speed3" : "assets/images/speed3.png"}, "speed1")
-restartButton = Button("restartButton", 4, True, {"restart" : "assets/images/restart-button.png"}, "restart")
+pausePlayButton = Button("pausePlayButton", 1, True, {"pause" : os.path.join("assets", "images", "pause-button.png"), "play" : os.path.join("assets", "images", "play-button.png")}, "play")
+stepButton = Button("stepButton", 2, True, {"step" : os.path.join("assets", "images", "step25x25.png"), "step_disabled" : os.path.join("assets", "images", "step25x25_disabled.png")}, "step_disabled")
+speedButton = Button("speedButton", 3, True, {"speed1" : os.path.join("assets", "images", "speed1.png"), "speed2" : os.path.join("assets", "images", "speed2.png"), "speed3" : os.path.join("assets", "images", "speed3.png")}, "speed1")
+restartButton = Button("restartButton", 4, True, {"restart" : os.path.join("assets", "images", "restart-button.png")}, "restart")
 buttons = [pausePlayButton, stepButton, speedButton, restartButton]
 
 '''
@@ -170,7 +172,7 @@ def drawGrid():
                              HEIGHT])
 
     currentTime = controller.formatTimeString(gameTimerhms)
-    ren = font.render(currentTime, 0, RED, BLACK)
+    ren = font.render(currentTime, 0, BLACK, WHITE)
     surface.blit(ren, (0, 0))
 
 def quitGame():
