@@ -218,4 +218,21 @@ def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIte
         livingCells.remove(cellToDie)
         grid[cellToDie[0]][cellToDie[1]] = 0
 
+def readConfig(path, grid, livingCells):
+    f = open(path, "r")
+    s = f.read()
+    offset = 40
+    row = offset
+    col = offset
+
+    for c in s:
+
+        if c == '*':
+            grid[row][col] = 1
+            livingCells.add((row, col))
+        col += 1
+        if c == '\n':
+            row += 1
+            col = offset
+    #print(s)
 

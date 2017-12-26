@@ -74,7 +74,7 @@ grid = [[0 for x in range(blocksInRow)] for y in range(blocksInCol)]
 #gridPos = [[[(MARGIN + WIDTH) * x + MARGIN, (MARGIN + HEIGHT) * y + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
 gridPos = [[[(MARGIN + WIDTH) * (x + ommitedLines * -1) + MARGIN, (MARGIN + HEIGHT) * (y + ommitedLines * -1) + MARGIN] for x in range(blocksInRow)] for y in range(blocksInCol)]
 livingCells = set() #Saves the coordinates (row, col) of live cells.
-#print(gridPos)
+#print(grid)
 
 #print(gridPos)
 #print(gridPos)
@@ -119,7 +119,8 @@ pausePlayButton = Button("pausePlayButton", 1, True, {"pause" : os.path.join("as
 stepButton = Button("stepButton", 2, True, {"step" : os.path.join("assets", "images", "step25x25.png"), "step_disabled" : os.path.join("assets", "images", "step25x25_disabled.png")}, "step_disabled")
 speedButton = Button("speedButton", 3, True, {"speed1" : os.path.join("assets", "images", "speed1.png"), "speed2" : os.path.join("assets", "images", "speed2.png"), "speed3" : os.path.join("assets", "images", "speed3.png")}, "speed1")
 restartButton = Button("restartButton", 4, True, {"restart" : os.path.join("assets", "images", "restart-button.png")}, "restart")
-buttons = [pausePlayButton, stepButton, speedButton, restartButton]
+readButton = Button("readButton", 5, True, {"read" : os.path.join("assets", "images", "read.png")}, "read")
+buttons = [pausePlayButton, stepButton, speedButton, restartButton, readButton]
 
 '''
 Checks if buttons have been clicked and calls the appropriate controller functions.
@@ -138,6 +139,8 @@ def HandleClicks(clickPos):
             elif button.name == "restartButton":
                 gameTimerMS = controller.restart(gameTimerMS, livingCells, grid, buttons)
                 #print(livingCells)
+            elif button.name == "readButton":
+                controller.readConfig("C:/Users/Owner/Desktop/configs/pulsar.txt", grid, livingCells)
             return #if a button has been pressed, no need to keep searching
 
     for row in range(blocksInCol):
