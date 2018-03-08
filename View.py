@@ -1,5 +1,6 @@
 '''
 Next step:
+Add text box to take configuration file path.
 Variable window size depending on target machine.
 Add functionality that counts cells, to better estimate distances when creating structures.
 One suggestion would be "block shadows" that follow the cursor.
@@ -26,8 +27,8 @@ TRANSPARENT = (0, 0, 0, 0)
 windowHeight = 800
 windowWidth = 1200
 
-WIDTH = 10 # square width
-HEIGHT = 10 # square height
+WIDTH = 5 # square width
+HEIGHT = 5 # square height
 MARGIN = 1  # distance between squares
 oldWidth = WIDTH
 oldHeight = HEIGHT
@@ -140,7 +141,7 @@ def HandleClicks(clickPos):
                 gameTimerMS = controller.restart(gameTimerMS, livingCells, grid, buttons)
                 #print(livingCells)
             elif button.name == "readButton":
-                controller.readConfig("C:/Users/Owner/Desktop/configs/pulsar.txt", grid, livingCells)
+                controller.readConfig("C:/Users/Owner/PyCharmProjects/Game of Life/configs/glider-gun.txt", grid, livingCells, blocksInCol//2, blocksInRow//2)
             return #if a button has been pressed, no need to keep searching
 
     for row in range(blocksInCol):
@@ -174,9 +175,20 @@ def drawGrid():
                              WIDTH,
                              HEIGHT])
 
+'''
+Draws time progression.
+'''
+def drawTime():
     currentTime = controller.formatTimeString(gameTimerhms)
     ren = font.render(currentTime, 0, BLACK, WHITE)
     surface.blit(ren, (0, 0))
+
+'''
+Draws iterations.
+'''
+def drawIterations():
+    ren = font.render("Gen.: " + str(controller.steps), 0, BLACK, WHITE)
+    surface.blit(ren, (10, 0))
 
 def quitGame():
     pygame.quit()
@@ -193,6 +205,7 @@ while True:
     gameTimerhms = controller.calculateTime(gameTimerMS)
 
     drawGrid()
+    drawIterations()
     drawButtons(buttons)
     #drawButtons()
     # Handle user and system events

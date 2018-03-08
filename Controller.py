@@ -1,5 +1,6 @@
 '''
 Next step:
+Add text box to take configuration file path.
 Variable window size depending on target machine.
 Add functionality that counts cells, to better estimate distances when creating structures.
 One suggestion would be "block shadows" that follow the cursor.
@@ -98,7 +99,7 @@ def cellClick(grid, row, column, livingCells):
                 configured = False
             else:
                 configured = True
-        #print(livingCells)
+        #print((row, column))
         #print(configured)
 
 '''
@@ -135,7 +136,7 @@ def formatTimeString(gameTimerhms):
 Next moves are only calculated for living cells and cells surrounding them.
 '''
 def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIteration):
-
+    global steps
     globals()['timeAtLastIteration'] = timeAtLastIteration #differentiation between parameter and global variable with same name.
     cellsToDie = set() #cells that will die.
     cellsToLive = set()
@@ -218,21 +219,26 @@ def calculateNextMove(livingCells, grid, blocksInRow, blocksInCol, timeAtLastIte
         livingCells.remove(cellToDie)
         grid[cellToDie[0]][cellToDie[1]] = 0
 
-def readConfig(path, grid, livingCells):
-    f = open(path, "r")
-    s = f.read()
-    offset = 40
-    row = offset
-    col = offset
+    steps += 1
 
-    for c in s:
+def readConfig(path, grid, livingCells, offsetRow, offsetCol):
+    global configured
+    if not configured:
+        f = open(path, "r")
+        s = f.read()
+        #offset = 40
+        row = offsetRow
+        col = offsetCol
 
-        if c == '*':
-            grid[row][col] = 1
-            livingCells.add((row, col))
-        col += 1
-        if c == '\n':
-            row += 1
-            col = offset
-    #print(s)
+        for c in s:
+
+            if c == '*':
+                grid[row][col] = 1
+                livingCells.add((row, col))
+            col += 1
+            if c == '\n':
+                row += 1
+                col = offsetCol
+        configured = True
+        #print(s)
 
