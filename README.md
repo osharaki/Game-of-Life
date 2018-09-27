@@ -15,8 +15,8 @@ line 144 in View.py if another configuration file should be loaded.
 
 ## Creating Custom Configurations
 
-A configuration file is a simple text file consisting of asteriks (*) and dots (.), where an asterik denotes that the corresponding cell will
-be occupied and a dot denotes that the cell will be empty. The number of overall characters (i.e. '.' and '*') need not correspond 
+A configuration file is a simple text file consisting of asteriks '\*' and dots '.', where an asterik denotes that the corresponding cell will
+be occupied and a dot denotes that the cell will be empty. The number of overall characters (i.e. '.' and '\*') need not correspond 
 to the number of cells in the grid. However, to ensure an accurate representation of the configuration on the grid, the characters need to be
 placed correctly relative to each other as they are intended to be seen on the grid.
 For examples on how a configuration file is structured, take a look in the **assets** folder. 
