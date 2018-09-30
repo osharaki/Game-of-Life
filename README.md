@@ -19,5 +19,7 @@ A configuration file is a simple text file consisting of asteriks '\*' and dots 
 be occupied and a dot denotes that the cell will be empty. The number of overall characters (i.e. '.' and '\*') need not correspond 
 to the number of cells in the grid. However, to ensure an accurate representation of the configuration on the grid, the characters need to be
 placed correctly relative to each other as they are intended to be seen on the grid.
-For examples on how a configuration file is structured, take a look in the **assets** folder. 
+For examples on how a configuration file is structured, take a look in the **assets** folder.
+
+![alt text](GOL_Sample.png "Screenshot of Life featuring a 'Glider Gun'")
  
