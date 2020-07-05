@@ -18,7 +18,7 @@ python View.py
 ## Controls
 Using the UI buttons, the simulation can be started, restarted, accelerated, decelerated, or iterated through.
 
-Pre-set configurations can be found in the [assets](./assets) folder and can be loaded while the program is running by clicking on the disk button.
+Pre-set configurations can be found in the [configs](./configs) folder and can be loaded while the program is running by clicking on the disk button.
 
 **NOTE:** At the moment, the configuration file to be loaded is hardcoded and must therefore be changed manually by adjusting the configuration file path in [View.py](./View.py) if another configuration file should be loaded. 
 
