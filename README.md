@@ -14,7 +14,6 @@ If you're running the game on a platform other than Windows, or if you simply do
 ```
 python View.py
 ```
----
 ## Controls
 Using the UI buttons, the simulation can be started, restarted, accelerated, decelerated, or iterated through.
 
@@ -22,7 +21,6 @@ Pre-set configurations can be found in the [configs](./configs) folder and can b
 
 **NOTE:** At the moment, the configuration file to be loaded is hardcoded and must therefore be changed manually by adjusting the configuration file path in [View.py](./View.py) if another configuration file should be loaded. 
 
----
 
 ## Creating Custom Configurations
 
