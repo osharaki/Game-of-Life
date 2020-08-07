@@ -1,6 +1,6 @@
-## Conway's Game of Life
+## Conway's Game of Life (*Built in 2017*)
 
-This is an implementation of Conway's [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) in Python and Pygame. (*Built in 2017*)
+This is an implementation of Conway's [Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life) in Python and Pygame.
 
 ![alt text](GOL_Sample.png "Screenshot of Life featuring a 'Glider Gun'")
 
